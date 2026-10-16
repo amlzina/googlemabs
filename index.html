@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Security Research Lab</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar"><div class="brand-mark">⌘</div><div><div class="brand">SECURITY RESEARCH LAB</div><div class="subbrand">منصة تحليل أمني وتعليم عملي</div></div><span class="pill">نسخة أكاديمية</span></header>
+<main class="shell">
+  <section class="hero">
+    <div class="eyebrow"><span class="dot"></span> فحص سلبي + بحث أمني منظم</div>
+    <h1>افهم المؤشرات الأمنية.<br><em>تحقّق من الأدلة.</em></h1>
+    <p>فحوصات عامة فعلية لإعدادات HTTP وTLS، وخطط بحث مخصصة، وتقارير قابلة للتنزيل. لا ندّعي اكتشاف ثغرات دون دليل.</p>
+    <div class="hero-stats"><div><b>01</b><span>فحص عام</span></div><div><b>02</b><span>خطة بحث</span></div><div><b>03</b><span>تقرير موثق</span></div></div>
+  </section>
+  <div class="grid-layout">
+    <section class="panel scan-panel">
+      <div class="panel-heading"><div><span class="kicker">LIVE CHECK</span><h2>فحص إعدادات الموقع</h2></div><span class="icon-bubble">⌁</span></div>
+      <p class="muted">يُرسل طلب GET واحدًا فقط. لا يرسل حمولات استغلال ولا يتبع التحويلات.</p>
+      <form id="scan-form">
+        <label for="url">رابط الموقع العام</label>
+        <input id="url" name="url" type="url" placeholder="https://example.com" required maxlength="2048" dir="ltr">
+        <label class="checkline"><input type="checkbox" id="authorized" required><span>أؤكد أنني أملك هذا الهدف أو لدي تصريح بفحصه.</span></label>
+        <button class="primary" type="submit" id="scan-button">ابدأ الفحص <span>↗</span></button>
+      </form>
+      <div class="safety-note"><span>ⓘ</span><span>العناوين المحلية والخاصة محظورة. لا تستخدم الأداة لفحص هدف لا تملك تصريحًا باختباره.</span></div>
+    </section>
+    <section class="panel scan-panel">
+      <div class="panel-heading"><div><span class="kicker">BOUNDED CRAWL</span><h2>زحف آمن لصفحات الموقع</h2></div><span class="icon-bubble green">◎</span></div>
+      <p class="muted">يتصفح حتى 8 صفحات من نفس النطاق وبعمق مستوى واحد، باستخدام GET فقط. لا يرسل نماذج أو حمولات اختبار.</p>
+      <button class="secondary" type="button" id="crawl-button">ابدأ الزحف المحدود <span>↗</span></button>
+      <div class="safety-note"><span>ⓘ</span><span>يستخدم الرابط الموجود في حقل الفحص بالأعلى ويتطلب تأكيد التصريح نفسه.</span></div>
+    </section>
+    <section class="panel research-panel">
+      <div class="panel-heading"><div><span class="kicker">RESEARCH COPILOT</span><h2>خطة بحث أمنية</h2></div><span class="icon-bubble purple">✳</span></div>
+      <p class="muted">اختاري موضوعًا وسيجهز لك النظام خطوات تحقق وأدلة مطلوبة ومراجع رسمية. الخطة ليست اكتشافًا لثغرة.</p>
+      <form id="research-form">
+        <label for="target">التطبيق أو الخدمة</label>
+        <input id="target" value="Google Maps" maxlength="120">
+        <label for="topic">موضوع البحث</label>
+        <select id="topic">
+          {% for key, topic in topics.items() %}<option value="{{ key }}">{{ topic.title }}</option>{% endfor %}
+        </select>
+        <button class="secondary" type="submit" id="research-button">إنشاء خطة البحث <span>✦</span></button>
+      </form>
+    </section>
+  </div>
+  <section class="panel results-panel" id="results-panel" hidden>
+    <div class="panel-heading"><div><span class="kicker">OUTPUT</span><h2 id="result-title">النتيجة</h2></div><div class="export-actions"><button class="small-button" id="export-json">تنزيل JSON</button><button class="small-button" id="export-html">تنزيل HTML</button></div></div>
+    <div id="results-content"></div>
+  </section>
+  <section class="panel verification-panel link-analysis-panel">
+    <div class="panel-heading"><div><span class="kicker">MAPS LINK ANALYZER</span><h2>حلّل رابط ملف النشاط</h2></div><span class="icon-bubble purple">⌕</span></div>
+    <p class="muted">الصقي رابط مشاركة Google Maps. يمكن للأداة فحص اتساق الاسم والحي ورقم الهاتف مع صفحة الموقع العامة التي تحددينها. الرابط وحده لا يكشف خيارات التحقق الداخلية ولا يثبت وجود ثغرة.</p>
+    <form id="verification-link-form" class="verification-form">
+      <label for="maps-profile-url">رابط ملف Google Maps</label>
+      <input id="maps-profile-url" type="url" placeholder="https://maps.app.goo.gl/..." maxlength="2048" required>
+      <div class="lab-two-fields">
+        <div><label for="maps-business-name">اسم النشاط الحقيقي (اختياري)</label><input id="maps-business-name" maxlength="160" placeholder="الاسم كما يظهر على الملف"></div>
+        <div><label for="maps-neighborhood">الحي/منطقة الخدمة (اختياري)</label><input id="maps-neighborhood" maxlength="120" placeholder="الحي الصحيح"></div>
+      </div>
+      <label for="maps-phone">رقم هاتف النشاط الصحيح (اختياري)</label><input id="maps-phone" type="tel" maxlength="32" placeholder="رقم تملكين إذنًا باستخدامه">
+      <label for="maps-website-url">الموقع الإلكتروني الرسمي للنشاط (اختياري)</label><input id="maps-website-url" type="url" maxlength="2048" placeholder="https://example.com">
+      <label class="check-label"><input id="maps-website-authorized" type="checkbox"> أؤكد أن الموقع عام ولدي إذن لإجراء طلب قراءة واحد عليه.</label>
+      <button class="primary" type="submit" id="verification-link-button">حلّل الرابط ومؤشرات الاتساق <span>↗</span></button>
+    </form>
+    <div id="verification-link-results" class="verification-results" hidden></div>
+  </section>
+  <section class="panel verification-panel">
+    <div class="panel-heading"><div><span class="kicker">VERIFICATION READINESS PLANNER</span><h2>مخطط تجهيز إثبات النشاط</h2></div><span class="icon-bubble green">✦</span></div>
+    <p class="muted">اختاري وسائل التحقق التي ظهرت فعلًا داخل حساب Google، وحددي الأدلة المتوفرة. سيقترح النظام أفضل طريقة للاستعداد للخيارات الموجودة فقط، من دون تخمين أو محاولة فرض خيار مخفي.</p>
+    <form id="readiness-form" class="verification-form">
+      <div class="lab-two-fields"><div><label for="r-type">نوع النشاط</label><select id="r-type"><option value="service-area">خدمة متنقلة / منطقة خدمة</option><option value="storefront">محل يستقبل العملاء</option><option value="hybrid">محل وخدمة متنقلة</option></select></div><div><label for="r-status">حالة الملف</label><select id="r-status"><option value="not-started">لم أبدأ</option><option value="pending">قيد المراجعة</option><option value="failed">فشل التحقق</option><option value="review-issues">ملاحظات على الفيديو</option><option value="suspended">معلّق</option><option value="verified">تم التحقق</option></select></div></div>
+      <fieldset class="method-checks"><legend>إيه الخيارات اللي ظهرت فعلًا في Get verified؟</legend>
+        <label class="check-label"><input type="checkbox" name="r-method" value="phone_sms"> مكالمة هاتفية أو SMS</label>
+        <label class="check-label"><input type="checkbox" name="r-method" value="email"> البريد الإلكتروني</label>
+        <label class="check-label"><input type="checkbox" name="r-method" value="recorded_video"> فيديو مسجّل</label>
+        <label class="check-label"><input type="checkbox" name="r-method" value="live_video"> مكالمة فيديو مباشرة</label>
+        <label class="check-label"><input type="checkbox" name="r-method" value="postcard"> بطاقة بريدية</label>
+        <label class="check-label"><input type="checkbox" name="r-method" value="automatic"> تحقق تلقائي</label>
+      </fieldset>
+      <fieldset class="method-checks"><legend>الأدلة المتوفرة حاليًا</legend>
+        <label class="check-label"><input type="checkbox" id="r-signage"> لافتة دائمة للنشاط (إن كان له مقر يستقبل العملاء)</label>
+        <label class="check-label"><input type="checkbox" id="r-tools"> أدوات أو معدات عمل حقيقية</label>
+        <label class="check-label"><input type="checkbox" id="r-management"> دليل حقيقي على إدارة النشاط</label>
+        <label class="check-label"><input type="checkbox" id="r-address"> العنوان أو منطقة الخدمة صحيحان</label>
+        <label class="check-label"><input type="checkbox" id="r-phone"> أستطيع الوصول إلى رقم النشاط الصحيح</label>
+        <label class="check-label"><input type="checkbox" id="r-email"> أستطيع الوصول إلى البريد المعروض</label>
+        <label class="check-label"><input type="checkbox" id="r-mail"> يمكن استلام البريد على العنوان الصحيح</label>
+        <label class="check-label"><input type="checkbox" id="r-website"> المعلومات متسقة مع الموقع الرسمي إن وُجد</label>
+      </fieldset>
+      <button class="primary" type="submit" id="readiness-button">اقترح خطة الإثبات <span>✦</span></button>
+    </form>
+    <div id="readiness-results" class="verification-results" hidden></div>
+  </section>
+  <section class="panel verification-panel">
+    <div class="panel-heading"><div><span class="kicker">EVIDENCE NOTEBOOK</span><h2>دفتر اختبار الفرضيات</h2></div><span class="icon-bubble green">≋</span></div>
+    <p class="muted">سجّلي ملاحظات مقارنة قبل/بعد لتجارب مصرح بها. الأداة توثّق النتائج ولا تغيّر خيارات التحقق ولا تعتبر الارتباط وحده ثغرة مؤكدة.</p>
+    <form id="evidence-form" class="verification-form">
+      <label for="evidence-title">عنوان الفرضية</label>
+      <input id="evidence-title" maxlength="180" required placeholder="مثال: اتساق بيانات الموقع مع ملف النشاط">
+      <label for="evidence-scope">نطاق الاختبار / إذن الاختبار</label>
+      <input id="evidence-scope" maxlength="240" required placeholder="مثال: ملف أمل التجريبي، اختبار مسموح به بتاريخ ...">
+      <label class="check-label"><input id="evidence-authorized" type="checkbox" required> أؤكد أن لدي إذنًا للاختبار وأنني لم أستخدم بيانات مضللة.</label>
+      <div class="lab-two-fields"><div><label for="evidence-before">الملاحظة قبل التغيير</label><textarea id="evidence-before" rows="3" maxlength="1500" required placeholder="ما الخيار الذي ظهر فعلًا؟"></textarea></div><div><label for="evidence-after">الملاحظة بعد التغيير</label><textarea id="evidence-after" rows="3" maxlength="1500" required placeholder="ما الذي تغيّر فعلًا؟"></textarea></div></div>
+      <label for="evidence-repeats">عدد مرات تكرار النتيجة (من 1 إلى 20)</label><input id="evidence-repeats" type="number" min="1" max="20" value="1" required>
+      <label for="evidence-artifacts">الأدلة / التوقيت / القيود</label><textarea id="evidence-artifacts" rows="3" maxlength="2000" placeholder="أرقام لقطات الشاشة، التوقيت، ما لم تستطيعي التحقق منه..."></textarea>
+      <button class="primary" type="submit" id="evidence-submit">إنشاء تقرير التجربة <span>↗</span></button>
+    </form>
+    <div id="evidence-results" class="verification-results" hidden></div>
+  </section>
+  <section class="panel verification-panel">
+    <div class="panel-heading"><div><span class="kicker">GBP VERIFICATION ADVISOR</span><h2>مساعد تشخيص التحقق في Google Maps</h2></div><span class="icon-bubble purple">✓</span></div>
+    <p class="muted">اختاري الحالة الفعلية للملف، وسيقترح النظام الخطوات الرسمية المناسبة ويميّز الإرشاد الموثق عن التخمين. لا يتصل بحسابك ولا يضمن تغيير خيارات Google.</p>
+    <form id="verification-form" class="verification-form">
+      <div class="lab-two-fields"><div><label for="v-method">طريقة التحقق الظاهرة</label><select id="v-method"><option value="unknown">مش عارفة / لم أفتح الشاشة</option><option value="phone">مكالمة هاتفية</option><option value="sms">رسالة SMS</option><option value="email">البريد الإلكتروني</option><option value="video">فيديو</option><option value="postcard">بطاقة بريدية</option><option value="auto">تحقق تلقائي</option><option value="none">لا توجد طريقة ظاهرة</option></select></div><div><label for="v-status">حالة الملف</label><select id="v-status"><option value="not-started">لم أبدأ التحقق</option><option value="pending">قيد المراجعة</option><option value="failed">فشل التحقق</option><option value="review-issues">مراجعة الفيديو بها ملاحظات</option><option value="suspended">معلّق</option><option value="verified">تم التحقق</option></select></div></div>
+      <div class="lab-two-fields"><div><label for="v-type">نوع النشاط</label><select id="v-type"><option value="service-area">خدمة متنقلة / منطقة خدمة</option><option value="storefront">محل يستقبل العملاء</option><option value="hybrid">محل وخدمة متنقلة</option></select></div><div><label for="v-phone">هل يمكنك الوصول لرقم النشاط؟</label><select id="v-phone"><option value="unsure">مش متأكدة</option><option value="yes">أيوه، أستقبل المكالمة أو SMS</option><option value="no">لا</option></select></div></div>
+      <div class="lab-two-fields"><div><label for="v-website">هل بيانات الموقع متطابقة مع النشاط؟</label><select id="v-website"><option value="unsure">مش متأكدة</option><option value="yes">أيوه</option><option value="no">فيه اختلاف حقيقي</option><option value="none">مفيش موقع إلكتروني</option></select></div><div><label for="v-video-issue">سبب رفض الفيديو (إن وُجد)</label><select id="v-video-issue"><option value="none">لا يوجد / لم أقدّم فيديو</option><option value="location">الموقع أو الحي غير واضح</option><option value="business-proof">إثبات النشاط ناقص</option><option value="management-proof">إثبات الإدارة ناقص</option><option value="name-mismatch">الاسم غير مطابق</option><option value="other">سبب آخر / راجعي الملاحظات</option></select></div></div>
+      <button class="primary" type="submit" id="verification-button">حلّل الحالة واقترح الخطوات <span>↗</span></button>
+    </form>
+    <div id="verification-results" class="verification-results" hidden></div>
+  </section>
+  <section class="panel lab-panel">
+    <div class="panel-heading"><div><span class="kicker">LOCAL TRAINING</span><h2>المعمل التعليمي</h2></div><span class="icon-bubble green">⌘</span></div>
+    <p class="muted">سيناريوهات محلية لتعلم الإصلاح، منفصلة تمامًا عن أي موقع خارجي.</p>
+    <div class="lab-cards" id="lab-cards"><div class="lab-card"><b>XSS</b><span>ترميز المخرجات</span></div><div class="lab-card"><b>SQLi</b><span>الاستعلامات المعلّمة</span></div><div class="lab-card"><b>Access Control</b><span>فحص الصلاحيات</span></div></div>
+    <button class="text-button" id="load-lab">عرض تفاصيل المعمل ←</button><div id="lab-details"></div>
+    <div class="lab-interactive">
+      <h3>تشغيل تجربة دفاعية محلية</h3>
+      <label for="lab-exercise">نوع التجربة</label>
+      <select id="lab-exercise"><option value="xss">XSS — ترميز المخرجات</option><option value="sqli">SQL Injection — استعلام معلّم</option><option value="access-control">Access Control — ملكية المورد</option></select>
+      <label for="lab-value">قيمة تجريبية (لا تُرسل لأي موقع خارجي)</label>
+      <input id="lab-value" value="alice" maxlength="500">
+      <div class="lab-two-fields"><div><label for="lab-user">المستخدم</label><input id="lab-user" value="alice" maxlength="80"></div><div><label for="lab-owner">مالك المورد</label><input id="lab-owner" value="alice" maxlength="80"></div></div>
+      <button class="secondary" id="run-lab-check" type="button">تشغيل التجربة المحلية</button><pre id="lab-check-result" class="lab-result" hidden></pre>
+    </div>
+  </section>
+  <section class="panel sources-panel">
+    <div class="panel-heading"><div><span class="kicker">TRUSTED REFERENCES</span><h2>مصادر موثوقة</h2></div></div>
+    <div class="source-list">{% for source in sources %}<a href="{{ source.url }}" target="_blank" rel="noopener noreferrer"><span>{{ source.title }}</span><b>↗</b></a>{% endfor %}</div>
+  </section>
+  <footer>SECURITY RESEARCH LAB <span>•</span> أداة تعليمية للفحص السلبي — لا تضمن اكتشاف جميع الثغرات.</footer>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
